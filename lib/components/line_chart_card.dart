@@ -1,0 +1,134 @@
+import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import '../components/custom_box.dart';
+import '../constants/colors.dart';
+import '../data/graph_data.dart';
+
+class LineChartCard extends StatefulWidget {
+  const LineChartCard({
+    super.key, 
+    this.spots, 
+    required this.subject, 
+    this.color = Colors.blue, 
+    this.isSchoolYear = true,
+  });
+
+  final List<FlSpot>? spots;
+  final Color? color;
+  final bool isSchoolYear;
+  final String subject;
+
+  @override
+  State<LineChartCard> createState() => _LineChartCardState();
+}
+
+class _LineChartCardState extends State<LineChartCard> {
+
+  late GraphData data;
+  late String subject;
+  late Color? color;
+  late bool isSchoolYear;
+
+  @override
+  void initState() {
+    isSchoolYear = widget.isSchoolYear;
+    super.initState();
+    data = GraphData(
+      spots: widget.spots,
+      isSchoolYear: widget.isSchoolYear,
+    );
+    subject = widget.subject;
+    color = widget.color ?? Colors.blue;
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return CustomBox(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            subject,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: primaryColor),
+          ),
+          const SizedBox(height: 20),
+          AspectRatio(
+            aspectRatio: 16 / 9,
+            child: LineChart(
+              LineChartData(
+                lineTouchData: const LineTouchData(
+                  handleBuiltInTouches: true,
+                ),
+                gridData: const FlGridData(show: false),
+                titlesData: FlTitlesData(
+                  rightTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  topTitles: const AxisTitles(
+                    sideTitles: SideTitles(showTitles: false),
+                  ),
+                  bottomTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      showTitles: true,
+                      getTitlesWidget: (double value, TitleMeta meta) {
+                        return data.bottomTitle[value.toInt()] != null
+                            ? SideTitleWidget(
+                                axisSide: meta.axisSide,
+                                child: Text(
+                                    data.bottomTitle[value.toInt()].toString(),
+                                    style: TextStyle(
+                                        fontSize: 12, color: Colors.grey[400])),
+                              )
+                            : const SizedBox();
+                      },
+                      interval: 1,
+                    ),
+                  ),
+                  leftTitles: AxisTitles(
+                    sideTitles: SideTitles(
+                      getTitlesWidget: (double value, TitleMeta meta) {
+                        return data.leftTitle[value.toInt()] != null
+                            ? Text(data.leftTitle[value.toInt()].toString(),
+                                style: TextStyle(
+                                    fontSize: 12, color: Colors.grey[400]))
+                            : const SizedBox();
+                      },
+                      showTitles: true,
+                      interval: 1,
+                      reservedSize: 40,
+                    ),
+                  ),
+                ),
+                borderData: FlBorderData(show: false),
+                lineBarsData: [
+                  LineChartBarData(
+                    color: color,
+                    barWidth: 2.5,
+                    isCurved: true,
+                    belowBarData: BarAreaData(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [
+                          color!.withOpacity(0.5),
+                          Colors.transparent
+                        ],
+                      ),
+                      show: true,
+                    ),
+                    dotData: const FlDotData(show: true),
+                    spots: data.spots ?? [],
+                  )
+                ],
+                minX: 0,
+                maxX: !isSchoolYear ? 365 : 303,
+                maxY: 10,
+                minY: 0,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
