@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
 import '../components/custom_box.dart';
 import '../constants/colors.dart';
-import '../data/graph_data.dart';
+import '../constants/graph_data.dart';
 
 class LineChartCard extends StatefulWidget {
   const LineChartCard({
@@ -10,12 +10,14 @@ class LineChartCard extends StatefulWidget {
     this.spots, 
     required this.subject, 
     this.color = Colors.blue, 
-    this.isSchoolYear = true,
+    this.leftCaption = "",
+    this.bottomCaption = "",
   });
 
   final List<FlSpot>? spots;
   final Color? color;
-  final bool isSchoolYear;
+  final String bottomCaption;
+  final String leftCaption;
   final String subject;
 
   @override
@@ -27,15 +29,18 @@ class _LineChartCardState extends State<LineChartCard> {
   late GraphData data;
   late String subject;
   late Color? color;
-  late bool isSchoolYear;
+  late String bottomCaption;
+  late String leftCaption;
 
   @override
   void initState() {
-    isSchoolYear = widget.isSchoolYear;
+    bottomCaption = widget.bottomCaption;
+    leftCaption = widget.leftCaption;
     super.initState();
     data = GraphData(
       spots: widget.spots,
-      isSchoolYear: widget.isSchoolYear,
+      bottomCaption: bottomCaption,
+      leftCaption: leftCaption,
     );
     subject = widget.subject;
     color = widget.color ?? Colors.blue;
@@ -121,8 +126,8 @@ class _LineChartCardState extends State<LineChartCard> {
                   )
                 ],
                 minX: 0,
-                maxX: !isSchoolYear ? 365 : 303,
-                maxY: 10,
+                maxX: data.maxX,
+                maxY: data.maxY,
                 minY: 0,
               ),
             ),

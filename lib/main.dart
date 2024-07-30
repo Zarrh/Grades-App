@@ -2,15 +2,9 @@ import 'package:flutter/material.dart';
 import 'pages/homepage.dart';
 import 'constants/colors.dart';
 
-import 'package:provider/provider.dart';
-import './data/shared.dart';
-
 void main() {
   runApp(
-    ChangeNotifierProvider<SharedData>(
-      create: (_) => SharedData(),
-      child: const MyApp(),
-    ),
+    const MyApp(),
   );
 }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 const cardBackgroundColor = Color(0xFF21222D);
 const primaryColor = Color.fromARGB(255, 114, 176, 167);
+// const primaryColor = Color.fromARGB(255, 168, 117, 238);
 const secondaryColor = Color(0xFFFFFFFF);
 const backgroundColor = Color(0xFF15131C);
 const selectionColor = Color(0xFF88B2AC);
@@ -15,4 +16,6 @@ const subjectColors = {
   "Scienze naturali": Color.fromARGB(255, 40, 254, 7),
   "Religione Cattolica": Color.fromARGB(255, 226, 227, 227),
   "Lingua e Letteratura Italiana": Color.fromARGB(255, 255, 148, 26),
+  "Educazione Civica": Color.fromARGB(255, 255, 242, 125),
+  "Disegno e Storia dell'Arte": Color.fromARGB(255, 225, 83, 161),
 };

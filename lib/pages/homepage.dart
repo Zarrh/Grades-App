@@ -81,8 +81,8 @@ class _HomePageState extends State<HomePage> {
         List<num> values = allGrades.map((g) => g.value).toList();
         List<num> weights = allGrades.map((g) => g.weight).toList();
 
-        dynamic wm = weightedMean(values, weights) ?? "N/D";
-        dynamic sd = standardDeviation(values) ?? "N/D";
+        dynamic wm = weightedMean(values, weights) ?? "N/D"; // Weighted mean
+        dynamic sd = standardDeviation(values) ?? "N/D"; // Standard deviation
 
         spots.sort((a, b) => a.x.compareTo(b.x));
         _mainContent.add(
@@ -90,8 +90,10 @@ class _HomePageState extends State<HomePage> {
             padding: const EdgeInsets.all(6),
             child: LineChartCard(
               subject: "All subjects", 
-              spots: spots, 
+              spots: spots,
               color: primaryColor,
+              bottomCaption: "School_year",
+              leftCaption: "R10",
             ),
           ), 
         );
@@ -163,6 +165,35 @@ class _HomePageState extends State<HomePage> {
             ],
           ),
         );
+
+        spots = [];
+        Map<double, double> distribution = {};
+
+        for (final grade in allGrades) {
+          if (distribution.containsKey(grade.value)) {
+            distribution[grade.value] = distribution[grade.value]! + 1;
+            continue;
+          }
+          distribution[grade.value] = 1;
+        }
+
+        for (final mark in distribution.keys) {
+          spots.add(FlSpot(mark, distribution[mark] ?? 0));
+        }
+
+        spots.sort((a, b) => a.x.compareTo(b.x));
+        _mainContent.add(
+          Container(
+            padding: const EdgeInsets.all(6),
+            child: LineChartCard(
+              subject: "Grades distribution", 
+              spots: spots,
+              color: primaryColor,
+              bottomCaption: "R10-1",
+            ),
+          ), 
+        );
+
         _loaded = true;
       });
     });

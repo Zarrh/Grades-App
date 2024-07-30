@@ -50,6 +50,8 @@ class _StatsPageState extends State<StatsPage> {
               subject: subject.name, 
               spots: spots, 
               color: subject.color,
+              bottomCaption: "School_year",
+              leftCaption: "R10",
             ),
           ), 
         );
