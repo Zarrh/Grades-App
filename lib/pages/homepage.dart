@@ -7,7 +7,8 @@ import 'dart:math';
 import 'package:flutter_math_fork/flutter_math.dart';
 import '../constants/colors.dart';
 import '../data/grade.dart';
-import '../data/grades.dart';
+import '../data/yearly_grades.dart';
+import '../data/global_grades.dart';
 import '../data/subject.dart';
 import '../components/custom_box.dart';
 import '../components/line_chart_card.dart';
@@ -24,7 +25,10 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
 
-  final Grades _grades = Grades(year: "2023-2024");
+  List<String> _years = [];
+  List<FlSpot> _spots = [];
+  String? _selectedYear;
+  final GlobalGrades _grades = GlobalGrades();
   bool _loaded = false;
   List<Subject> _subjects = [];
   List<Widget> _mainContent = [];
@@ -42,159 +46,180 @@ class _HomePageState extends State<HomePage> {
       // print(jsonDecode(utf8.decode(response.bodyBytes)));
 
       // return jsonDecode(utf8.decode(response.bodyBytes));
-      _grades.results = jsonDecode(utf8.decode(response.bodyBytes));
+      _grades.yearlyGrades = jsonDecode(utf8.decode(response.bodyBytes));
+  }
+
+  void _clear() {
+    setState(() {
+      _spots = [];
+      _years = [];
+      _subjects = [];
+      _mainContent = [];
+      _loaded = false;
+    });
+  }
+
+  void _render() {
+    setState(() {
+      _selectedYear ??= _grades.yearlyGrades?.keys.toList().last;
+
+      _mainContent.add(const SizedBox(height: 20));
+      _grades.yearlyGrades?.forEach((key, value) {
+        _years.add(key);
+      });
+
+      _grades.yearlyGrades?[_selectedYear]?.forEach((key, subject) {
+        final List<Grade> marks = [];
+        final Subject subj = Subject(name: key, color: subjectColors[key]);
+
+        for (final grade in subject) {
+          marks.add(Grade(value: double.parse(grade["value"]), weight: percToDouble(grade["weight"]) ?? 1, date: grade["date"]));
+        }
+        
+        subj.grades = marks;
+
+        if (!excludedSubjects.contains(subj.name)) {
+          for (final grade in subj.grades) {
+            _spots.add(FlSpot(dateJanToSep(dateToInt(grade.date ?? "10/09/2024")).toDouble(), grade.value));
+          }
+        }
+        
+        _subjects.add(subj);
+      });
+
+      List<Grade> allGrades = _subjects
+        .where((subject) => !excludedSubjects.contains(subject.name))
+        .expand((subject) => subject.grades)
+        .toList();
+      List<num> values = allGrades.map((g) => g.value).toList();
+      List<num> weights = allGrades.map((g) => g.weight).toList();
+
+      dynamic wm = weightedMean(values, weights) ?? "N/D"; // Weighted mean
+      dynamic sd = standardDeviation(values) ?? "N/D"; // Standard deviation
+
+      _spots.sort((a, b) => a.x.compareTo(b.x));
+      _mainContent.add(
+        Container(
+          padding: const EdgeInsets.all(6),
+          child: LineChartCard(
+            subject: "All subjects", 
+            spots: _spots,
+            color: primaryColor,
+            bottomCaption: "School_year",
+            leftCaption: "R10",
+          ),
+        ), 
+      );
+      _mainContent.add(
+        GridView.count(
+          padding: const EdgeInsets.all(6),
+          crossAxisSpacing: 6,
+          crossAxisCount: 2,
+          childAspectRatio: 1,
+          shrinkWrap: true,
+          physics: const ScrollPhysics(),
+          children: [
+            CustomBox(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 40,
+                    child: Math.tex(
+                      r'\overline{v}',
+                      textStyle: const TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 50),
+                    ),
+                  ), 
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Text(
+                      wm.toStringAsFixed(3),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: secondaryColor,
+                        fontSize: 30,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            CustomBox(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.center, 
+                children: [
+                  const SizedBox(height: 20),
+                  SizedBox(
+                    height: 40,
+                    child: Math.tex(
+                      r'\sigma',
+                      textStyle: const TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 50),
+                    ),
+                  ),
+                  const SizedBox(height: 20),
+                  Center(
+                    child: Text(
+                      sd.toStringAsFixed(3),
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: secondaryColor,
+                        fontSize: 30,
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+
+      _spots = [];
+      Map<double, double> distribution = {};
+
+      for (final grade in allGrades) {
+        if (distribution.containsKey(grade.value)) {
+          distribution[grade.value] = distribution[grade.value]! + 1;
+          continue;
+        }
+        distribution[grade.value] = 1;
+      }
+
+      for (final mark in distribution.keys) {
+        _spots.add(FlSpot(mark, distribution[mark] ?? 0));
+      }
+
+      _spots.sort((a, b) => a.x.compareTo(b.x));
+      _mainContent.add(
+        Container(
+          padding: const EdgeInsets.all(6),
+          child: LineChartCard(
+            subject: "Grades distribution", 
+            spots: _spots,
+            color: primaryColor,
+            bottomCaption: "R10-1",
+          ),
+        ), 
+      );
+      _loaded = true;
+    });
+  }
+
+  void _updateYear(String year) {
+    setState(() {
+      _selectedYear = year;
+    });
   }
 
   void _updateGrades() {
-    // _loaded = false; // Can also be removed
     getGrades().then((_) {
       setState(() {
-        _mainContent = [];
-        _mainContent.add(const SizedBox(height: 20));
-        _subjects = [];
-
-        List<FlSpot> spots = [];
-
-        _grades.results?.forEach((key, subject) {
-          List<Grade> marks = [];
-          Subject subj = Subject(name: key, color: subjectColors[key]);
-
-          for (final grade in subject) {
-            marks.add(Grade(value: double.parse(grade["value"]), weight: percToDouble(grade["weight"]) ?? 1, date: grade["date"]));
-          }
-          
-          subj.grades = marks;
-
-          if (!excludedSubjects.contains(subj.name)) {
-            for (final grade in subj.grades) {
-              spots.add(FlSpot(dateJanToSep(dateToInt(grade.date ?? "10/09/2024")).toDouble(), grade.value));
-            }
-          }
-          
-          _subjects.add(subj);
-        });
-
-        List<Grade> allGrades = _subjects
-          .where((subject) => !excludedSubjects.contains(subject.name))
-          .expand((subject) => subject.grades)
-          .toList();
-        List<num> values = allGrades.map((g) => g.value).toList();
-        List<num> weights = allGrades.map((g) => g.weight).toList();
-
-        dynamic wm = weightedMean(values, weights) ?? "N/D"; // Weighted mean
-        dynamic sd = standardDeviation(values) ?? "N/D"; // Standard deviation
-
-        spots.sort((a, b) => a.x.compareTo(b.x));
-        _mainContent.add(
-          Container(
-            padding: const EdgeInsets.all(6),
-            child: LineChartCard(
-              subject: "All subjects", 
-              spots: spots,
-              color: primaryColor,
-              bottomCaption: "School_year",
-              leftCaption: "R10",
-            ),
-          ), 
-        );
-        _mainContent.add(
-          GridView.count(
-            padding: const EdgeInsets.all(6),
-            crossAxisSpacing: 6,
-            crossAxisCount: 2,
-            childAspectRatio: 1,
-            shrinkWrap: true,
-            physics: const ScrollPhysics(),
-            children: [
-              CustomBox(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 40,
-                      child: Math.tex(
-                        r'\overline{v}',
-                        textStyle: const TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 50),
-                      ),
-                    ), 
-                    const SizedBox(height: 20),
-                    Center(
-                      child: Text(
-                        wm.toStringAsFixed(3),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: secondaryColor,
-                          fontSize: 30,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              CustomBox(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.center, 
-                  children: [
-                    const SizedBox(height: 20),
-                    SizedBox(
-                      height: 40,
-                      child: Math.tex(
-                        r'\sigma',
-                        textStyle: const TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 50),
-                      ),
-                    ),
-                    const SizedBox(height: 20),
-                    Center(
-                      child: Text(
-                        sd.toStringAsFixed(3),
-                        style: const TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: secondaryColor,
-                          fontSize: 30,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        );
-
-        spots = [];
-        Map<double, double> distribution = {};
-
-        for (final grade in allGrades) {
-          if (distribution.containsKey(grade.value)) {
-            distribution[grade.value] = distribution[grade.value]! + 1;
-            continue;
-          }
-          distribution[grade.value] = 1;
-        }
-
-        for (final mark in distribution.keys) {
-          spots.add(FlSpot(mark, distribution[mark] ?? 0));
-        }
-
-        spots.sort((a, b) => a.x.compareTo(b.x));
-        _mainContent.add(
-          Container(
-            padding: const EdgeInsets.all(6),
-            child: LineChartCard(
-              subject: "Grades distribution", 
-              spots: spots,
-              color: primaryColor,
-              bottomCaption: "R10-1",
-            ),
-          ), 
-        );
-
-        _loaded = true;
+        _render();
       });
     });
   }
@@ -225,7 +250,24 @@ class _HomePageState extends State<HomePage> {
             Icons.bar_chart,
             color: primaryColor,
           ),
-        ), 
+        ),
+        actions: [
+          PopupMenuButton<String>(
+            onSelected: (value) {
+              _updateYear(value);
+              _clear();
+              _updateGrades(); // To substitute with _render()
+            },
+            itemBuilder: (context) => _years.map((year) {
+              return PopupMenuItem<String>(
+                value: year,
+                child: Text(year, style: const TextStyle(color: primaryColor)),
+              );
+            }).toList(),
+            color: backgroundColor,
+            iconColor: primaryColor,
+          )
+        ], 
       ),
       body: SingleChildScrollView(
         child: Center(
@@ -245,7 +287,10 @@ class _HomePageState extends State<HomePage> {
       floatingActionButton: FloatingActionButton(
         tooltip: "Update",
         backgroundColor: primaryColor,
-        onPressed: () => {_updateGrades()},
+        onPressed: () {
+          _clear();
+          _updateGrades();
+        },
         child: const Icon(Icons.refresh),
       ),
     );

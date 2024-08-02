@@ -21,11 +21,9 @@ class StatsPage extends StatefulWidget {
 
 class _StatsPageState extends State<StatsPage> {
 
-  bool _loaded = false;
-  List<Widget> _mainContent = [];
+  final List<Widget> _mainContent = [];
 
   void _updateGrades() {
-    _mainContent = [];
     _mainContent.add(const SizedBox(height: 40));
     setState(() {
       widget.subjects?.forEach((subject) {
@@ -136,7 +134,7 @@ class _StatsPageState extends State<StatsPage> {
                   Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => SubjectPage(title: subject.name),
+                      builder: (context) => SubjectPage(subj: subject),
                     ),
                   );
                 },
@@ -147,7 +145,6 @@ class _StatsPageState extends State<StatsPage> {
         );      
         _mainContent.add(const SizedBox(height: 20));
       });
-      _loaded = true;
     });
   }
 
@@ -180,14 +177,7 @@ class _StatsPageState extends State<StatsPage> {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: !_loaded 
-              ? [
-                const SizedBox(height: 40),
-                const Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                ] 
-              : _mainContent,
+            children: _mainContent,
           ),
         ),
       ),
