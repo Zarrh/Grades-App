@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../constants/colors.dart';
 import '../data/subject.dart';
-import '../data/grade.dart';
 import '../components/custom_box.dart';
 
 class SubjectPage extends StatelessWidget {
@@ -12,14 +11,56 @@ class SubjectPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
 
-    final List<Widget> _content = [];
-    _content.add(const SizedBox(height: 40));
+    final List<Widget> content = [];
+    content.add(const SizedBox(height: 40));
+
+    content.add(
+      Container(
+        width: double.infinity,
+        margin: const EdgeInsets.all(12),
+        child: GridView.count(
+          shrinkWrap: true,
+          childAspectRatio: 16 / 5,
+          physics: const ScrollPhysics(),
+          crossAxisCount: 2,
+          children: <Widget>[
+            Container(
+              alignment: AlignmentDirectional.centerStart,
+              child: const Text("Score", style: TextStyle(color: primaryColor, fontSize: 26, fontWeight: FontWeight.bold))
+            ),
+            Container(
+              alignment: AlignmentDirectional.centerEnd,
+              child: const Text("Date", style: TextStyle(color: primaryColor, fontSize: 26, fontWeight: FontWeight.bold))
+            ),
+          ],
+        )
+      ) 
+    );      
 
     for (final grade in subj.grades) {
-      _content.add(
-        CustomBox(
-          child: Text(grade.value.toString(), style: const TextStyle(color: secondaryColor))
-        )   
+      content.add(
+        Container(
+          width: double.infinity,
+          margin: const EdgeInsets.all(6),
+          child: CustomBox(
+            child: GridView.count(
+              shrinkWrap: true,
+              childAspectRatio: 16 / 5,
+              physics: const ScrollPhysics(),
+              crossAxisCount: 2,
+              children: <Widget>[
+                Container(
+                  alignment: AlignmentDirectional.centerStart,
+                  child: Text(grade.value.toString(), style: const TextStyle(color: secondaryColor, fontSize: 24))
+                ),
+                Container(
+                  alignment: AlignmentDirectional.centerEnd,
+                  child: Text(grade.date.toString(), style: const TextStyle(color: secondaryColor, fontSize: 24))
+                ),
+              ],
+            )
+          ) 
+        )        
       );
     }
 
@@ -44,7 +85,7 @@ class SubjectPage extends StatelessWidget {
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
-            children: _content,
+            children: content,
           ),
         ),
       ),

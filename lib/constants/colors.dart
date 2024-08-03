@@ -4,6 +4,7 @@ const cardBackgroundColor = Color(0xFF21222D);
 const primaryColor = Color.fromARGB(255, 114, 176, 167);
 // const primaryColor = Color.fromARGB(255, 168, 117, 238);
 const secondaryColor = Color(0xFFFFFFFF);
+const thirdColor = Color.fromARGB(255, 134, 64, 180);
 const backgroundColor = Color(0xFF15131C);
 const selectionColor = Color(0xFF88B2AC);
 

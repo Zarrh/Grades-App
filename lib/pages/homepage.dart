@@ -3,6 +3,7 @@ import 'statspage.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'dart:math';
 import 'package:flutter_math_fork/flutter_math.dart';
 import '../constants/colors.dart';
@@ -59,14 +60,22 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _render() {
+  void _setYears() {
     setState(() {
-      _selectedYear ??= _grades.yearlyGrades?.keys.toList().last;
-
-      _mainContent.add(const SizedBox(height: 20));
       _grades.yearlyGrades?.forEach((key, value) {
         _years.add(key);
       });
+    });
+  }
+
+  void _render() {
+    setState(() {
+      _clear();
+      _mainContent = [];
+      _selectedYear ??= _grades.yearlyGrades?.keys.toList().last;
+
+      _mainContent.add(const SizedBox(height: 20));
+      _setYears();
 
       _grades.yearlyGrades?[_selectedYear]?.forEach((key, subject) {
         final List<Grade> marks = [];
@@ -132,14 +141,31 @@ class _HomePageState extends State<HomePage> {
                       textStyle: const TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 50),
                     ),
                   ), 
-                  const SizedBox(height: 20),
-                  Center(
-                    child: Text(
+                  const SizedBox(height: 7.5),
+                  CircularPercentIndicator(
+                    radius: 45.0,
+                    lineWidth: 5.0,
+                    circularStrokeCap: CircularStrokeCap.round,
+                    percent: wm / 10 ?? 0,
+                    // progressColor: primaryColor,
+                    backgroundColor: primaryColor.withOpacity(0.25),
+                    // rotateLinearGradient: true,
+                    linearGradient: const LinearGradient(
+                      colors: [
+                        primaryColor,
+                        thirdColor,
+                      ],
+                      // stops: [
+                      //   0.1,
+                      //   0.5,
+                      // ],
+                    ),
+                    center: Text(
                       wm.toStringAsFixed(3),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: secondaryColor,
-                        fontSize: 30,
+                        fontSize: 24,
                       ),
                       textAlign: TextAlign.center,
                     ),
@@ -160,14 +186,31 @@ class _HomePageState extends State<HomePage> {
                       textStyle: const TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 50),
                     ),
                   ),
-                  const SizedBox(height: 20),
-                  Center(
-                    child: Text(
+                  const SizedBox(height: 7.5),
+                  CircularPercentIndicator(
+                    radius: 45.0,
+                    lineWidth: 5.0,
+                    circularStrokeCap: CircularStrokeCap.round,
+                    percent: sd / 5 ?? 0,
+                    // progressColor: primaryColor,
+                    backgroundColor: primaryColor.withOpacity(0.25),
+                    // rotateLinearGradient: true,
+                    linearGradient: const LinearGradient(
+                      colors: [
+                        primaryColor,
+                        thirdColor,
+                      ],
+                      // stops: [
+                      //   0.1,
+                      //   0.5,
+                      // ],
+                    ),
+                    center: Text(
                       sd.toStringAsFixed(3),
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: secondaryColor,
-                        fontSize: 30,
+                        fontSize: 24,
                       ),
                       textAlign: TextAlign.center,
                     ),
