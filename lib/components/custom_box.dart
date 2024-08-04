@@ -16,6 +16,7 @@ class CustomBox extends StatelessWidget {
           Radius.circular(8.0),
         ),
         color: color ?? cardBackgroundColor,
+        border: Border.all(color: cardBorderColor),
       ),
       child: Padding(
         padding: padding ?? const EdgeInsets.all(12.0),

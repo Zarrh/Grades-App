@@ -1,12 +1,18 @@
 import 'package:flutter/material.dart';
 
 const cardBackgroundColor = Color(0xFF21222D);
+const cardBorderColor = Color.fromARGB(255, 66, 68, 89);
+
 const primaryColor = Color.fromARGB(255, 114, 176, 167);
 // const primaryColor = Color.fromARGB(255, 168, 117, 238);
 const secondaryColor = Color(0xFFFFFFFF);
 const thirdColor = Color.fromARGB(255, 134, 64, 180);
 const backgroundColor = Color(0xFF15131C);
 const selectionColor = Color(0xFF88B2AC);
+
+const positiveColor = Color.fromARGB(255, 29, 255, 116);
+const negativeColor = Color.fromARGB(255, 255, 10, 10);
+const topColor = Color.fromARGB(255, 255, 197, 22);
 
 const subjectColors = {
   "Filosofia": Color.fromARGB(255, 170, 249, 237),

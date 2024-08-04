@@ -51,7 +51,7 @@ class SubjectPage extends StatelessWidget {
               children: <Widget>[
                 Container(
                   alignment: AlignmentDirectional.centerStart,
-                  child: Text(grade.value.toString(), style: const TextStyle(color: secondaryColor, fontSize: 24))
+                  child: Text(grade.value.toString(), style: TextStyle(color: grade.value >= 9.75 ? topColor : (grade.value >= 5.75 ? positiveColor : negativeColor), fontSize: 24))
                 ),
                 Container(
                   alignment: AlignmentDirectional.centerEnd,

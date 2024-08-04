@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:flutter_math_fork/flutter_math.dart';
 import '../components/custom_box.dart';
 import '../constants/colors.dart';
 import '../constants/graph_data.dart';
@@ -9,6 +10,8 @@ class LineChartCard extends StatefulWidget {
     super.key, 
     this.spots, 
     required this.subject, 
+    this.subtitle,
+    this.latexAction,
     this.color = Colors.blue, 
     this.leftCaption = "",
     this.bottomCaption = "",
@@ -19,6 +22,8 @@ class LineChartCard extends StatefulWidget {
   final String bottomCaption;
   final String leftCaption;
   final String subject;
+  final String? subtitle;
+  final String? latexAction;
 
   @override
   State<LineChartCard> createState() => _LineChartCardState();
@@ -26,35 +31,47 @@ class LineChartCard extends StatefulWidget {
 
 class _LineChartCardState extends State<LineChartCard> {
 
-  late GraphData data;
-  late String subject;
   late Color? color;
-  late String bottomCaption;
-  late String leftCaption;
 
   @override
   void initState() {
-    bottomCaption = widget.bottomCaption;
-    leftCaption = widget.leftCaption;
     super.initState();
-    data = GraphData(
-      spots: widget.spots,
-      bottomCaption: bottomCaption,
-      leftCaption: leftCaption,
-    );
-    subject = widget.subject;
     color = widget.color ?? Colors.blue;
   }
 
   @override
   Widget build(BuildContext context) {
+    final data = GraphData(
+      spots: widget.spots,
+      bottomCaption: widget.bottomCaption,
+      leftCaption: widget.leftCaption,
+    );
     return CustomBox(
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            subject,
+            widget.subject,
             style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: primaryColor),
+          ),
+          GridView.count(
+            shrinkWrap: true,
+            childAspectRatio: 16 / 5,
+            physics: const ScrollPhysics(),
+            crossAxisCount: 2,
+            children: <Widget>[
+              Container(
+                alignment: AlignmentDirectional.centerStart,
+                child: Text(widget.subtitle ?? "", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: secondaryColor))
+              ),
+              Container(
+                alignment: AlignmentDirectional.centerEnd,
+                child: Math.tex(
+                  widget.latexAction ?? r"",
+                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: secondaryColor),
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 20),
           AspectRatio(

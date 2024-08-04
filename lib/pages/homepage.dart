@@ -4,11 +4,9 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'dart:math';
 import 'package:flutter_math_fork/flutter_math.dart';
 import '../constants/colors.dart';
 import '../data/grade.dart';
-import '../data/yearly_grades.dart';
 import '../data/global_grades.dart';
 import '../data/subject.dart';
 import '../components/custom_box.dart';
@@ -86,6 +84,9 @@ class _HomePageState extends State<HomePage> {
         }
         
         subj.grades = marks;
+        subj.sd = standardDeviation(subj.grades.map((e) => e.value).toList());
+        subj.mean = mean(subj.grades.map((e) => e.value).toList());
+        subj.weightedMean = weightedMean((subj.grades.map((e) => e.value).toList()), subj.grades.map((e) => e.weight).toList());
 
         if (!excludedSubjects.contains(subj.name)) {
           for (final grade in subj.grades) {
@@ -103,8 +104,8 @@ class _HomePageState extends State<HomePage> {
       List<num> values = allGrades.map((g) => g.value).toList();
       List<num> weights = allGrades.map((g) => g.weight).toList();
 
-      dynamic wm = weightedMean(values, weights) ?? "N/D"; // Weighted mean
-      dynamic sd = standardDeviation(values) ?? "N/D"; // Standard deviation
+      dynamic wm = weightedMean(values, weights); // Weighted mean
+      dynamic sd = standardDeviation(values); // Standard deviation
 
       _spots.sort((a, b) => a.x.compareTo(b.x));
       _mainContent.add(
@@ -141,7 +142,7 @@ class _HomePageState extends State<HomePage> {
                       textStyle: const TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 50),
                     ),
                   ), 
-                  const SizedBox(height: 7.5),
+                  const SizedBox(height: 7),
                   CircularPercentIndicator(
                     radius: 45.0,
                     lineWidth: 5.0,
@@ -161,10 +162,10 @@ class _HomePageState extends State<HomePage> {
                       // ],
                     ),
                     center: Text(
-                      wm.toStringAsFixed(3),
-                      style: const TextStyle(
+                      wm.toStringAsFixed(3) ?? "N/D",
+                      style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: secondaryColor,
+                        color: wm != null ? (wm >= 9 ? topColor : secondaryColor) : secondaryColor,
                         fontSize: 24,
                       ),
                       textAlign: TextAlign.center,
@@ -186,7 +187,7 @@ class _HomePageState extends State<HomePage> {
                       textStyle: const TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 50),
                     ),
                   ),
-                  const SizedBox(height: 7.5),
+                  const SizedBox(height: 7),
                   CircularPercentIndicator(
                     radius: 45.0,
                     lineWidth: 5.0,
@@ -206,7 +207,7 @@ class _HomePageState extends State<HomePage> {
                       // ],
                     ),
                     center: Text(
-                      sd.toStringAsFixed(3),
+                      sd.toStringAsFixed(3) ?? "N/D",
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         color: secondaryColor,
@@ -249,6 +250,62 @@ class _HomePageState extends State<HomePage> {
           ),
         ), 
       );
+
+      double minSD = double.infinity;
+      Subject mostConstantSubj = Subject(name: "N/D");
+      double maxAVG = 0;
+      Subject highestSubj = Subject(name: "N/D");
+      for (final subj in _subjects) {
+        if (subj.sd != null && subj.sd! < minSD) {
+          minSD = subj.sd!;
+          mostConstantSubj = subj;
+        }
+        if (subj.mean != null && subj.mean! > maxAVG) {
+          maxAVG = subj.mean!;
+          highestSubj = subj;
+        }
+      }
+
+      _spots = [];
+      for (final grade in mostConstantSubj.grades) {
+        _spots.add(FlSpot(dateJanToSep(dateToInt(grade.date ?? "10/09/2024")).toDouble(), grade.value));
+      }
+
+      _mainContent.add(
+        Container(
+          padding: const EdgeInsets.all(6),
+          child: LineChartCard(
+            subject: "Most constant subject:", 
+            subtitle: mostConstantSubj.name,
+            latexAction: r'\sigma=' + minSD.toStringAsFixed(3),
+            spots: _spots,
+            color: mostConstantSubj.color ?? primaryColor,
+            bottomCaption: "School_year",
+            leftCaption: "R10",
+          ),
+        ), 
+      );
+
+      _spots = [];
+      for (final grade in highestSubj.grades) {
+        _spots.add(FlSpot(dateJanToSep(dateToInt(grade.date ?? "10/09/2024")).toDouble(), grade.value));
+      }
+
+      _mainContent.add(
+        Container(
+          padding: const EdgeInsets.all(6),
+          child: LineChartCard(
+            subject: "Best scored subject:", 
+            subtitle: highestSubj.name,
+            latexAction: r'\overline{v}=' + maxAVG.toStringAsFixed(3),
+            spots: _spots,
+            color: highestSubj.color ?? primaryColor,
+            bottomCaption: "School_year",
+            leftCaption: "R10",
+          ),
+        ), 
+      );
+
       _loaded = true;
     });
   }

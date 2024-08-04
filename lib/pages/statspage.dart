@@ -33,12 +33,6 @@ class _StatsPageState extends State<StatsPage> {
         for (final grade in marks) {
           spots.add(FlSpot(dateJanToSep(dateToInt(grade.date ?? "10/09/2024")).toDouble(), grade.value));
         }
-        
-        List<dynamic> values = marks.map((e) => e.value).toList();
-        List<dynamic> weights = marks.map((e) => e.weight).toList();
-
-        dynamic wm = weightedMean(values, weights) ?? "N/D";
-        dynamic sd = standardDeviation(values) ?? "N/D";
 
         spots.sort((a, b) => a.x.compareTo(b.x));
         _mainContent.add(
@@ -78,10 +72,10 @@ class _StatsPageState extends State<StatsPage> {
                     const SizedBox(height: 20),
                     Center(
                       child: Text(
-                        wm.toStringAsFixed(3),
-                        style: const TextStyle(
+                        subject.weightedMean?.toStringAsFixed(3) ?? "N/D",
+                        style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          color: secondaryColor,
+                          color: subject.weightedMean != null ? (subject.weightedMean! >= 9.5 ? topColor : secondaryColor) : secondaryColor,
                           fontSize: 30,
                         ),
                         textAlign: TextAlign.center,
@@ -106,7 +100,7 @@ class _StatsPageState extends State<StatsPage> {
                     const SizedBox(height: 20),
                     Center(
                       child: Text(
-                        sd.toStringAsFixed(3),
+                        subject.sd?.toStringAsFixed(3) ?? "N/D",
                         style: const TextStyle(
                           fontWeight: FontWeight.bold,
                           color: secondaryColor,

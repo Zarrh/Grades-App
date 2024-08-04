@@ -7,4 +7,7 @@ class Subject {
   final String name;
   final Color? color;
   List<Grade> grades;
+  double? sd;
+  double? weightedMean;
+  double? mean;
 }
