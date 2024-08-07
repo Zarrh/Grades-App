@@ -11,6 +11,7 @@ import '../data/global_grades.dart';
 import '../data/subject.dart';
 import '../components/custom_box.dart';
 import '../components/line_chart_card.dart';
+import '../components/bar_chart_card.dart';
 import '../utils/utils.dart';
 
 class HomePage extends StatefulWidget {
@@ -26,6 +27,7 @@ class _HomePageState extends State<HomePage> {
 
   List<String> _years = [];
   List<FlSpot> _spots = [];
+  List<BarChartGroupData> _barSpots = [];
   String? _selectedYear;
   final GlobalGrades _grades = GlobalGrades();
   bool _loaded = false;
@@ -51,6 +53,7 @@ class _HomePageState extends State<HomePage> {
   void _clear() {
     setState(() {
       _spots = [];
+      _barSpots = [];
       _years = [];
       _subjects = [];
       _mainContent = [];
@@ -63,6 +66,7 @@ class _HomePageState extends State<HomePage> {
       _grades.yearlyGrades?.forEach((key, value) {
         _years.add(key);
       });
+      _years.add("All years");
     });
   }
 
@@ -74,6 +78,210 @@ class _HomePageState extends State<HomePage> {
 
       _mainContent.add(const SizedBox(height: 20));
       _setYears();
+
+      if (_selectedYear == "All years") {
+        _mainContent.add(const Text("All years", style: TextStyle(color: secondaryColor, fontSize: 32, fontWeight: FontWeight.w500)));
+        _mainContent.add(const SizedBox(height: 20));
+        if (_grades.yearlyGrades != null) {
+          List<num>? values = _grades.yearlyGrades!.values
+            .expand((subjects) => subjects.entries)
+            .where((entry) => !excludedSubjects.contains(entry.key))
+            .expand((entry) => entry.value)
+            .map((grade) => double.parse(grade["value"]))
+            .toList();
+
+          List<num>? weights = _grades.yearlyGrades!.values
+            .expand((subjects) => subjects.entries)
+            .where((entry) => !excludedSubjects.contains(entry.key))
+            .expand((entry) => entry.value)
+            .map((grade) => percToDouble(grade["weight"]) ?? 1)
+            .toList();
+
+          dynamic wm = weightedMean(values, weights); // Weighted mean
+          dynamic sd = standardDeviation(values); // Standard deviation
+
+          _mainContent.add(
+            GridView.count(
+              padding: const EdgeInsets.all(6),
+              crossAxisSpacing: 6,
+              crossAxisCount: 2,
+              childAspectRatio: 1,
+              shrinkWrap: true,
+              physics: const ScrollPhysics(),
+              children: [
+                CustomBox(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 40,
+                        child: Math.tex(
+                          r'\overline{v}',
+                          textStyle: const TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 50),
+                        ),
+                      ), 
+                      const SizedBox(height: 7),
+                      CircularPercentIndicator(
+                        radius: 45.0,
+                        lineWidth: 5.0,
+                        circularStrokeCap: CircularStrokeCap.round,
+                        percent: wm / 10 ?? 0,
+                        // progressColor: primaryColor,
+                        backgroundColor: primaryColor.withOpacity(0.25),
+                        // rotateLinearGradient: true,
+                        linearGradient: const LinearGradient(
+                          colors: [
+                            primaryColor,
+                            thirdColor,
+                          ],
+                          // stops: [
+                          //   0.1,
+                          //   0.5,
+                          // ],
+                        ),
+                        center: Text(
+                          wm.toStringAsFixed(3) ?? "N/D",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: wm != null ? (wm.toInt() >= 9 ? topColor : secondaryColor) : secondaryColor,
+                            fontSize: 24,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                CustomBox(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center, 
+                    children: [
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        height: 40,
+                        child: Math.tex(
+                          r'\sigma',
+                          textStyle: const TextStyle(fontWeight: FontWeight.bold, color: primaryColor, fontSize: 50),
+                        ),
+                      ),
+                      const SizedBox(height: 7),
+                      CircularPercentIndicator(
+                        radius: 45.0,
+                        lineWidth: 5.0,
+                        circularStrokeCap: CircularStrokeCap.round,
+                        percent: sd / 5 ?? 0,
+                        // progressColor: primaryColor,
+                        backgroundColor: primaryColor.withOpacity(0.25),
+                        // rotateLinearGradient: true,
+                        linearGradient: const LinearGradient(
+                          colors: [
+                            primaryColor,
+                            thirdColor,
+                          ],
+                          // stops: [
+                          //   0.1,
+                          //   0.5,
+                          // ],
+                        ),
+                        center: Text(
+                          sd.toStringAsFixed(3) ?? "N/D",
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: secondaryColor,
+                            fontSize: 24,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          );
+          _spots = [];
+          Map<num, double> distribution = {};
+
+          for (var i = 0; i < values.length; i++) {
+            if (distribution.containsKey(values[i])) {
+              distribution[values[i].toDouble()] = distribution[values[i]]! + 1;
+              continue;
+            }
+            distribution[values[i].toDouble()] = 1;
+          }
+
+          for (final mark in distribution.keys) {
+            _spots.add(FlSpot(mark.toDouble(), distribution[mark] ?? 0));
+          }
+
+          _spots.sort((a, b) => a.x.compareTo(b.x));
+          _mainContent.add(
+            Container(
+              padding: const EdgeInsets.all(6),
+              child: LineChartCard(
+                subject: "Grades distribution", 
+                spots: _spots,
+                color: primaryColor,
+                bottomCaption: "R10-1",
+              ),
+            ), 
+          );
+
+          _mainContent.add(const SizedBox(height: 20));
+
+          _barSpots = [];
+          distribution = {};
+
+          for (var i = 0; i < values.length; i++) {
+            if (distribution.containsKey(values[i].toInt())) {
+              distribution[values[i].toInt()] = distribution[values[i].toInt()]! + 1;
+              continue;
+            }
+            distribution[values[i].toInt()] = 1;
+          }
+
+          for (final mark in distribution.keys) {
+            _barSpots.add(BarChartGroupData(
+                x: mark.toInt(),
+                barRods: [
+                  BarChartRodData(
+                    toY: distribution[mark] ?? 0,
+                    gradient: LinearGradient(
+                      colors: [
+                        selectionColor,
+                        selectionColor.withOpacity(0.5),
+                      ],
+                      begin: Alignment.bottomCenter,
+                      end: Alignment.topCenter,
+                    ),
+                  )
+                ],
+                showingTooltipIndicators: [0],
+              ),
+            );
+          }
+
+          _barSpots.sort((a, b) => a.x.compareTo(b.x));
+          _mainContent.add(
+            Container(
+              padding: const EdgeInsets.all(6),
+              child: BarChartCard(
+                subject: "Grades distribution", 
+                spots: _barSpots,
+                color: primaryColor,
+              ),
+            ), 
+          );
+        }
+
+        _mainContent.add(const SizedBox(height: 70));
+
+        _loaded = true;
+        return;
+      }
 
       _grades.yearlyGrades?[_selectedYear]?.forEach((key, subject) {
         final List<Grade> marks = [];
@@ -165,7 +373,7 @@ class _HomePageState extends State<HomePage> {
                       wm.toStringAsFixed(3) ?? "N/D",
                       style: TextStyle(
                         fontWeight: FontWeight.bold,
-                        color: wm != null ? (wm >= 9 ? topColor : secondaryColor) : secondaryColor,
+                        color: wm != null ? (wm.toInt() >= 9 ? topColor : secondaryColor) : secondaryColor,
                         fontSize: 24,
                       ),
                       textAlign: TextAlign.center,
@@ -224,7 +432,7 @@ class _HomePageState extends State<HomePage> {
       );
 
       _spots = [];
-      Map<double, double> distribution = {};
+      Map<num, double> distribution = {};
 
       for (final grade in allGrades) {
         if (distribution.containsKey(grade.value)) {
@@ -235,7 +443,7 @@ class _HomePageState extends State<HomePage> {
       }
 
       for (final mark in distribution.keys) {
-        _spots.add(FlSpot(mark, distribution[mark] ?? 0));
+        _spots.add(FlSpot(mark.toDouble(), distribution[mark] ?? 0));
       }
 
       _spots.sort((a, b) => a.x.compareTo(b.x));
@@ -247,6 +455,52 @@ class _HomePageState extends State<HomePage> {
             spots: _spots,
             color: primaryColor,
             bottomCaption: "R10-1",
+          ),
+        ), 
+      );
+
+      _mainContent.add(const SizedBox(height: 20));
+
+      _barSpots = [];
+      distribution = {};
+
+      for (var i = 0; i < values.length; i++) {
+        if (distribution.containsKey(values[i].toInt())) {
+          distribution[values[i].toInt()] = distribution[values[i].toInt()]! + 1;
+          continue;
+        }
+        distribution[values[i].toInt()] = 1;
+      }
+
+      for (final mark in distribution.keys) {
+        _barSpots.add(BarChartGroupData(
+            x: mark.toInt(),
+            barRods: [
+              BarChartRodData(
+                toY: distribution[mark] ?? 0,
+                gradient: LinearGradient(
+                  colors: [
+                    selectionColor,
+                    selectionColor.withOpacity(0.5),
+                  ],
+                  begin: Alignment.bottomCenter,
+                  end: Alignment.topCenter,
+                ),
+              )
+            ],
+            showingTooltipIndicators: [0],
+          ),
+        );
+      }
+
+      _barSpots.sort((a, b) => a.x.compareTo(b.x));
+      _mainContent.add(
+        Container(
+          padding: const EdgeInsets.all(6),
+          child: BarChartCard(
+            subject: "Grades distribution", 
+            spots: _barSpots,
+            color: primaryColor,
           ),
         ), 
       );
@@ -305,7 +559,6 @@ class _HomePageState extends State<HomePage> {
           ),
         ), 
       );
-
       _loaded = true;
     });
   }
@@ -342,7 +595,7 @@ class _HomePageState extends State<HomePage> {
             Navigator.push(
               context,
               MaterialPageRoute(
-                builder: (context) => StatsPage(title: "Grades statistics", subjects: _subjects),
+                builder: (context) => StatsPage(title: "Grades Statistics", subjects: _subjects),
               ),
             );
           },

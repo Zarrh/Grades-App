@@ -1,9 +1,8 @@
 import 'package:fl_chart/fl_chart.dart';
 
-class GraphData {
+class LineGraphData {
 
   final List<FlSpot>? spots;
-  final bool isSchoolYear;
   final String bottomCaption;
   final String leftCaption;
 
@@ -12,7 +11,7 @@ class GraphData {
   late final double maxX;
   late final double maxY;
 
-  GraphData({required this.spots, this.isSchoolYear = true, this.bottomCaption = "", this.leftCaption = ""}) {
+  LineGraphData({required this.spots, this.bottomCaption = "", this.leftCaption = ""}) {
     switch (bottomCaption) {
       case 'School_year':
         bottomTitle = {

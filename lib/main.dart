@@ -17,7 +17,6 @@ class MyApp extends StatelessWidget {
       title: 'Grades Statistics App',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
-        // colorScheme: ColorScheme.fromSeed(seedColor: backgroundColor),
         scaffoldBackgroundColor: backgroundColor,
         useMaterial3: true,
       ),

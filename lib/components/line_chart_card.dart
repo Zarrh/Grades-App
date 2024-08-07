@@ -3,7 +3,7 @@ import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter_math_fork/flutter_math.dart';
 import '../components/custom_box.dart';
 import '../constants/colors.dart';
-import '../constants/graph_data.dart';
+import '../constants/line_graph_data.dart';
 
 class LineChartCard extends StatefulWidget {
   const LineChartCard({
@@ -41,7 +41,7 @@ class _LineChartCardState extends State<LineChartCard> {
 
   @override
   Widget build(BuildContext context) {
-    final data = GraphData(
+    final data = LineGraphData(
       spots: widget.spots,
       bottomCaption: widget.bottomCaption,
       leftCaption: widget.leftCaption,
