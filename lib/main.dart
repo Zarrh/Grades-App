@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'pages/homepage.dart';
+import 'pages/mainscreen.dart';
 import 'constants/colors.dart';
 
 void main() {
@@ -20,7 +20,8 @@ class MyApp extends StatelessWidget {
         scaffoldBackgroundColor: backgroundColor,
         useMaterial3: true,
       ),
-      home: const HomePage(title: 'Grades statistics'),
+      // home: const HomePage(title: 'Grades statistics'),
+      home: const MainScreen(title: "Grades Statistics"),
     );
   }
 }

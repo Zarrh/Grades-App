@@ -99,11 +99,13 @@ class BarChartCard extends StatefulWidget {
     this.color = Colors.blue, 
     this.leftCaption = "",
     this.bottomCaption = "",
+    this.customBottomCaption = const {},
   });
 
   final List<BarChartGroupData>? spots;
   final Color? color;
   final String bottomCaption;
+  final Map<int, String> customBottomCaption;
   final String leftCaption;
   final String subject;
   final String? subtitle;
@@ -128,7 +130,7 @@ class _BarChartCardState extends State<BarChartCard> {
     final data = BarGraphData(
       spots: widget.spots,
       bottomCaption: widget.bottomCaption,
-      leftCaption: widget.leftCaption,
+      customBottomCaption: widget.customBottomCaption,
     );
     return CustomBox(
       child: Column(

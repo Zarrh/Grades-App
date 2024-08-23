@@ -1,5 +1,31 @@
 import 'dart:math';
 
+num? max(List<num> values) {
+  if (values.isEmpty) {
+    return null;
+  }
+  num max = -double.infinity;
+  for (final value in values) {
+    if (value > max) {
+      max = value;
+    }
+  }
+  return max;
+}
+
+num? min(List<num> values) {
+  if (values.isEmpty) {
+    return null;
+  }
+  num min = double.infinity;
+  for (final value in values) {
+    if (value < min) {
+      min = value;
+    }
+  }
+  return min;
+}
+
 // Function to return the number of days from the start of the year given a date. (DD/MM/YYYY)
 int dateToInt(String date) {
 
@@ -121,4 +147,63 @@ double? standardDeviation(List<dynamic> nums) {
   }
 
   return sqrt(sd / nums.length);
+}
+
+// Get the occurencies of datas in a list
+dynamic getDistribution(List<num> values) {
+  Map<num, double> distribution = {};
+
+  for (var i = 0; i < values.length; i++) {
+    if (distribution.containsKey(values[i])) {
+      distribution[values[i].toDouble()] = distribution[values[i]]! + 1;
+      continue;
+    }
+    distribution[values[i].toDouble()] = 1;
+  }
+
+  return distribution;
+}
+
+// Get the occurencies of datas in a list, grouped by integer classes
+dynamic getIntegerDistribution(List<num> values) {
+  Map<num, double> distribution = {};
+
+  for (var i = 0; i < values.length; i++) {
+    if (distribution.containsKey(values[i].toInt())) {
+      distribution[values[i].toInt()] = distribution[values[i].toInt()]! + 1;
+      continue;
+    }
+    distribution[values[i].toInt()] = 1;
+  }
+
+  return distribution;
+}
+
+// Get the occurencies of datas in a list, grouped by dynamic classes
+dynamic getClassesDistribution(List<num> values) {
+  Map<num, double> distribution = {};
+
+  if (values.isEmpty) {
+    return const {};
+  }
+
+  final int N = (1 + 10 / 3 * log(values.length) / log(10)).ceil(); // 1 + (10/3) log_10(n), Number of classes
+  final num rn = max(values)!; // MAX
+  final num r0 = min(values)!;  // MIN
+
+  final num r = rn - r0;
+  final num l = r / N; // Width of a single class
+
+  for (var i = 0; i < N; i++) {
+    distribution[r0 + i*l] = 0;
+  }
+
+  for (var i = 0; i < values.length; i++) {
+    final num j = (values[i] - r0) ~/ l;
+    if (distribution.containsKey(r0 + j*l)) {
+      distribution[r0 + j*l] = distribution[r0 + j*l]! + 1;
+    }
+  }
+
+  return distribution;
 }

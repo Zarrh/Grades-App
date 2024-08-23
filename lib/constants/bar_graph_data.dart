@@ -4,13 +4,30 @@ class BarGraphData {
 
   final List<BarChartGroupData>? spots;
   final String bottomCaption;
-  final String leftCaption;
+  final Map<int, String> customBottomCaption;
 
   late final Map<int, String> bottomTitle;
-  late final Map<int, String> leftTitle;
   late final double maxY;
 
-  BarGraphData({required this.spots, this.bottomCaption = "", this.leftCaption = ""}) {
+  BarGraphData({required this.spots, this.bottomCaption = "", this.customBottomCaption = const {}}) {
+    double max = 0;
+    if (spots != null) {
+      for (final p in spots!) {
+        for (final rod in p.barRods) {
+          if (rod.toY > max) {
+            max = rod.toY;
+          }
+        }
+      }
+    }
+
+    maxY = max;
+
+    if (customBottomCaption.isNotEmpty) {
+      bottomTitle = customBottomCaption;
+      return;
+    }
+
     switch (bottomCaption) {
       case 'R10':
         bottomTitle = {
@@ -37,37 +54,6 @@ class BarGraphData {
           10: '10', 
         };
         break;
-    }
-
-    switch (leftCaption) {
-      case 'R10':
-        leftTitle = {
-          0: '0',
-          2: '2',
-          4: '4',
-          6: '6',
-          8: '8',
-          10: '10',
-        };
-        maxY = 10;
-        break;
-      default:
-        double max = 0;
-        if (spots != null) {
-          for (final p in spots!) {
-            for (final rod in p.barRods) {
-              if (rod.toY > max) {
-                max = rod.toY;
-              }
-            }
-          }
-        }
-        
-        leftTitle = {};
-        for (var i = 0; i < max+4; i+=4) {
-          leftTitle[i] = i.toString();
-        }
-        maxY = max;
     }
   }
 }

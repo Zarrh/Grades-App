@@ -10,4 +10,5 @@ class Subject {
   double? sd;
   double? weightedMean;
   double? mean;
+  double? finalScore;
 }

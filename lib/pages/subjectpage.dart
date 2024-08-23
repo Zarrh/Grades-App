@@ -179,6 +179,117 @@ class SubjectPage extends StatelessWidget {
       )
     );
 
+    content.add(const SizedBox(height: 40));
+
+    content.add(
+      const Text("Results", style: TextStyle(color: primaryColor, fontSize: 26, fontWeight: FontWeight.w500))
+    );
+
+    content.add(const SizedBox(height: 20));
+
+    if (subj.finalScore != null) {
+      content.add(
+        CustomBox(
+          child: GridView.count(
+            shrinkWrap: true,
+            childAspectRatio: 16 / 11,
+            physics: const ScrollPhysics(),
+            crossAxisCount: 2,
+            children: <Widget>[
+              Container(
+                alignment: AlignmentDirectional.center,
+                margin: const EdgeInsets.only(right: 20),
+                child: const Text("Grade", style: TextStyle(color: secondaryColor, fontSize: 26, fontWeight: FontWeight.w500)),
+              ),
+              Container(
+                alignment: AlignmentDirectional.center,
+                margin: const EdgeInsets.only(left: 20),
+                child: const Text("Accuracy", style: TextStyle(color: secondaryColor, fontSize: 26, fontWeight: FontWeight.w500)),
+              ),
+              Container(
+                alignment: AlignmentDirectional.center,
+                margin: const EdgeInsets.only(right: 20),
+                child: CircularPercentIndicator(
+                  radius: 45.0,
+                  lineWidth: 5.0,
+                  circularStrokeCap: CircularStrokeCap.round,
+                  percent: (subj.finalScore?.round().toDouble() ?? 0) / 10,
+                  // progressColor: primaryColor,
+                  backgroundColor: primaryColor.withOpacity(0.25),
+                  // rotateLinearGradient: true,
+                  linearGradient: LinearGradient(
+                    colors: subj.finalScore?.round() == 10 
+                    ? 
+                    [
+                      topColor,
+                      topColor.withOpacity(0.5),
+                    ] 
+                    : 
+                    [
+                      primaryColor,
+                      thirdColor,
+                    ]
+                    // stops: [
+                    //   0.1,
+                    //   0.5,
+                    // ],
+                  ),
+                  center: Text(
+                    subj.finalScore!.round().toString(),
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: subj.finalScore?.round() != null ? (subj.finalScore?.round() == 10 ? topColor : secondaryColor) : secondaryColor,
+                      fontSize: 24,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+              Container(
+                alignment: AlignmentDirectional.center,
+                margin: const EdgeInsets.only(left: 20),
+                child: CircularPercentIndicator(
+                  radius: 45.0,
+                  lineWidth: 5.0,
+                  circularStrokeCap: CircularStrokeCap.round,
+                  percent: 1.0,
+                  // progressColor: primaryColor,
+                  backgroundColor: primaryColor.withOpacity(0.25),
+                  // rotateLinearGradient: true,
+                  linearGradient: LinearGradient(
+                    colors: subj.weightedMean?.round() == subj.finalScore 
+                    ? 
+                    [
+                      positiveColor,
+                      positiveColor.withOpacity(0.5),
+                    ] 
+                    : 
+                    [
+                      negativeColor,
+                      negativeColor.withOpacity(0.5),
+                    ]
+                    // stops: [
+                    //   0.1,
+                    //   0.5,
+                    // ],
+                  ),
+                  center: Text(
+                    subj.weightedMean?.round() == subj.finalScore ? "o" : "x",
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: subj.weightedMean?.round() == subj.finalScore ? positiveColor : negativeColor,
+                      fontSize: 24,
+                    ),
+                    textAlign: TextAlign.center,
+                  ),
+                ),
+              ),
+            ],
+          )
+        )
+      );
+    }
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: backgroundColor,

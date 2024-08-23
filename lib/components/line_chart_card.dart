@@ -15,6 +15,7 @@ class LineChartCard extends StatefulWidget {
     this.color = Colors.blue, 
     this.leftCaption = "",
     this.bottomCaption = "",
+    this.isCurved = true,
   });
 
   final List<FlSpot>? spots;
@@ -24,6 +25,7 @@ class LineChartCard extends StatefulWidget {
   final String subject;
   final String? subtitle;
   final String? latexAction;
+  final bool isCurved;
 
   @override
   State<LineChartCard> createState() => _LineChartCardState();
@@ -31,16 +33,9 @@ class LineChartCard extends StatefulWidget {
 
 class _LineChartCardState extends State<LineChartCard> {
 
-  late Color? color;
-
-  @override
-  void initState() {
-    super.initState();
-    color = widget.color ?? Colors.blue;
-  }
-
   @override
   Widget build(BuildContext context) {
+    Color color = widget.color ?? Colors.blue;
     final data = LineGraphData(
       spots: widget.spots,
       bottomCaption: widget.bottomCaption,
@@ -126,13 +121,13 @@ class _LineChartCardState extends State<LineChartCard> {
                   LineChartBarData(
                     color: color,
                     barWidth: 2.5,
-                    isCurved: true,
+                    isCurved: widget.isCurved,
                     belowBarData: BarAreaData(
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
                         colors: [
-                          color!.withOpacity(0.5),
+                          color.withOpacity(0.5),
                           Colors.transparent
                         ],
                       ),
