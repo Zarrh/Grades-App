@@ -2,17 +2,28 @@ import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
 import '../constants/colors.dart';
 import '../data/subject.dart';
+import '../data/global_subject.dart';
 import '../components/custom_box.dart';
+import '../data/computing_model.dart';
 
 class SubjectPage extends StatelessWidget {
-  const SubjectPage({super.key, required this.subj});
+  const SubjectPage({
+    super.key, 
+    required this.subj, 
+    this.globalSubj, 
+  });
 
   final Subject subj;
+  final GlobalSubject? globalSubj;
 
   @override
   Widget build(BuildContext context) {
 
     final List<Widget> content = [];
+    final ComputingModel model = ComputingModel(subj: subj, globalSubj: globalSubj);
+
+    model.beta();
+
     content.add(const SizedBox(height: 40));
 
     content.add(
@@ -27,11 +38,11 @@ class SubjectPage extends StatelessWidget {
           children: <Widget>[
             Container(
               alignment: AlignmentDirectional.centerStart,
-              child: const Text("Score", style: TextStyle(color: primaryColor, fontSize: 26, fontWeight: FontWeight.bold))
+              child: Text("Score", style: TextStyle(color: CustomTheme.primaryColor, fontSize: 26, fontWeight: FontWeight.bold))
             ),
             Container(
               alignment: AlignmentDirectional.centerEnd,
-              child: const Text("Date", style: TextStyle(color: primaryColor, fontSize: 26, fontWeight: FontWeight.bold))
+              child: Text("Date", style: TextStyle(color: CustomTheme.primaryColor, fontSize: 26, fontWeight: FontWeight.bold))
             ),
           ],
         )
@@ -56,7 +67,7 @@ class SubjectPage extends StatelessWidget {
                 ),
                 Container(
                   alignment: AlignmentDirectional.centerEnd,
-                  child: Text(grade.date.toString(), style: const TextStyle(color: secondaryColor, fontSize: 24))
+                  child: Text(grade.date.toString(), style: TextStyle(color: CustomTheme.secondaryColor, fontSize: 24))
                 ),
               ],
             )
@@ -68,15 +79,10 @@ class SubjectPage extends StatelessWidget {
     content.add(const SizedBox(height: 40));
 
     content.add(
-      const Text("Predictions", style: TextStyle(color: primaryColor, fontSize: 26, fontWeight: FontWeight.w500))
+      Text("Predictions", style: TextStyle(color: CustomTheme.primaryColor, fontSize: 26, fontWeight: FontWeight.w500))
     );
 
     content.add(const SizedBox(height: 20));
-
-    double? trust;
-    if (subj.weightedMean != null) {
-      trust = 1.0 - (subj.weightedMean! - subj.weightedMean!.round()).abs();
-    }
 
     content.add(
       CustomBox(
@@ -89,12 +95,12 @@ class SubjectPage extends StatelessWidget {
             Container(
               alignment: AlignmentDirectional.center,
               margin: const EdgeInsets.only(right: 20),
-              child: const Text("Grade", style: TextStyle(color: secondaryColor, fontSize: 26, fontWeight: FontWeight.w500)),
+              child: Text("Grade", style: TextStyle(color: CustomTheme.secondaryColor, fontSize: 26, fontWeight: FontWeight.w500)),
             ),
             Container(
               alignment: AlignmentDirectional.center,
               margin: const EdgeInsets.only(left: 20),
-              child: const Text("Trust", style: TextStyle(color: secondaryColor, fontSize: 26, fontWeight: FontWeight.w500)),
+              child: Text("Trust", style: TextStyle(color: CustomTheme.secondaryColor, fontSize: 26, fontWeight: FontWeight.w500)),
             ),
             Container(
               alignment: AlignmentDirectional.center,
@@ -103,12 +109,12 @@ class SubjectPage extends StatelessWidget {
                 radius: 45.0,
                 lineWidth: 5.0,
                 circularStrokeCap: CircularStrokeCap.round,
-                percent: (subj.weightedMean?.round().toDouble() ?? 0) / 10,
+                percent: (model.v?.toDouble() ?? 0) / 10,
                 // progressColor: primaryColor,
-                backgroundColor: primaryColor.withOpacity(0.25),
+                backgroundColor: CustomTheme.primaryColor.withOpacity(0.25),
                 // rotateLinearGradient: true,
                 linearGradient: LinearGradient(
-                  colors: subj.weightedMean?.round() == 10 
+                  colors: model.v == 10 
                   ? 
                   [
                     topColor,
@@ -116,7 +122,7 @@ class SubjectPage extends StatelessWidget {
                   ] 
                   : 
                   [
-                    primaryColor,
+                    CustomTheme.primaryColor,
                     thirdColor,
                   ]
                   // stops: [
@@ -125,10 +131,10 @@ class SubjectPage extends StatelessWidget {
                   // ],
                 ),
                 center: Text(
-                  subj.weightedMean?.round().toString() ?? "N/D",
+                  model.v?.toString() ?? "N/D",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: subj.weightedMean?.round() != null ? (subj.weightedMean?.round() == 10 ? topColor : secondaryColor) : secondaryColor,
+                    color: model.v != null ? (model.v == 10 ? topColor : CustomTheme.secondaryColor) : CustomTheme.secondaryColor,
                     fontSize: 24,
                   ),
                   textAlign: TextAlign.center,
@@ -142,12 +148,12 @@ class SubjectPage extends StatelessWidget {
                 radius: 45.0,
                 lineWidth: 5.0,
                 circularStrokeCap: CircularStrokeCap.round,
-                percent: (trust ?? 0),
+                percent: (model.trust?.toDouble() ?? 0),
                 // progressColor: primaryColor,
-                backgroundColor: primaryColor.withOpacity(0.25),
+                backgroundColor: CustomTheme.primaryColor.withOpacity(0.25),
                 // rotateLinearGradient: true,
                 linearGradient: LinearGradient(
-                  colors: trust == 1 
+                  colors: model.trust == 1 
                   ? 
                   [
                     topColor,
@@ -155,7 +161,7 @@ class SubjectPage extends StatelessWidget {
                   ] 
                   : 
                   [
-                    primaryColor,
+                    CustomTheme.primaryColor,
                     thirdColor,
                   ]
                   // stops: [
@@ -164,10 +170,10 @@ class SubjectPage extends StatelessWidget {
                   // ],
                 ),
                 center: Text(
-                  trust?.toStringAsFixed(3) ?? "N/D",
+                  model.trust?.toStringAsFixed(3) ?? "N/D",
                   style: TextStyle(
                     fontWeight: FontWeight.bold,
-                    color: trust == 1 ? topColor : secondaryColor,
+                    color: model.trust == 1 ? topColor : CustomTheme.secondaryColor,
                     fontSize: 24,
                   ),
                   textAlign: TextAlign.center,
@@ -182,7 +188,7 @@ class SubjectPage extends StatelessWidget {
     content.add(const SizedBox(height: 40));
 
     content.add(
-      const Text("Results", style: TextStyle(color: primaryColor, fontSize: 26, fontWeight: FontWeight.w500))
+      Text("Results", style: TextStyle(color: CustomTheme.primaryColor, fontSize: 26, fontWeight: FontWeight.w500))
     );
 
     content.add(const SizedBox(height: 20));
@@ -199,12 +205,12 @@ class SubjectPage extends StatelessWidget {
               Container(
                 alignment: AlignmentDirectional.center,
                 margin: const EdgeInsets.only(right: 20),
-                child: const Text("Grade", style: TextStyle(color: secondaryColor, fontSize: 26, fontWeight: FontWeight.w500)),
+                child: Text("Grade", style: TextStyle(color: CustomTheme.secondaryColor, fontSize: 26, fontWeight: FontWeight.w500)),
               ),
               Container(
                 alignment: AlignmentDirectional.center,
                 margin: const EdgeInsets.only(left: 20),
-                child: const Text("Accuracy", style: TextStyle(color: secondaryColor, fontSize: 26, fontWeight: FontWeight.w500)),
+                child: Text("Accuracy", style: TextStyle(color: CustomTheme.secondaryColor, fontSize: 26, fontWeight: FontWeight.w500)),
               ),
               Container(
                 alignment: AlignmentDirectional.center,
@@ -215,7 +221,7 @@ class SubjectPage extends StatelessWidget {
                   circularStrokeCap: CircularStrokeCap.round,
                   percent: (subj.finalScore?.round().toDouble() ?? 0) / 10,
                   // progressColor: primaryColor,
-                  backgroundColor: primaryColor.withOpacity(0.25),
+                  backgroundColor: CustomTheme.primaryColor.withOpacity(0.25),
                   // rotateLinearGradient: true,
                   linearGradient: LinearGradient(
                     colors: subj.finalScore?.round() == 10 
@@ -226,7 +232,7 @@ class SubjectPage extends StatelessWidget {
                     ] 
                     : 
                     [
-                      primaryColor,
+                      CustomTheme.primaryColor,
                       thirdColor,
                     ]
                     // stops: [
@@ -238,7 +244,7 @@ class SubjectPage extends StatelessWidget {
                     subj.finalScore!.round().toString(),
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: subj.finalScore?.round() != null ? (subj.finalScore?.round() == 10 ? topColor : secondaryColor) : secondaryColor,
+                      color: subj.finalScore?.round() != null ? (subj.finalScore?.round() == 10 ? topColor : CustomTheme.secondaryColor) : CustomTheme.secondaryColor,
                       fontSize: 24,
                     ),
                     textAlign: TextAlign.center,
@@ -254,10 +260,10 @@ class SubjectPage extends StatelessWidget {
                   circularStrokeCap: CircularStrokeCap.round,
                   percent: 1.0,
                   // progressColor: primaryColor,
-                  backgroundColor: primaryColor.withOpacity(0.25),
+                  backgroundColor: CustomTheme.primaryColor.withOpacity(0.25),
                   // rotateLinearGradient: true,
                   linearGradient: LinearGradient(
-                    colors: subj.weightedMean?.round() == subj.finalScore 
+                    colors: model.v == subj.finalScore 
                     ? 
                     [
                       positiveColor,
@@ -274,10 +280,10 @@ class SubjectPage extends StatelessWidget {
                     // ],
                   ),
                   center: Text(
-                    subj.weightedMean?.round() == subj.finalScore ? "o" : "x",
+                    model.v == subj.finalScore ? "o" : "x",
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: subj.weightedMean?.round() == subj.finalScore ? positiveColor : negativeColor,
+                      color: model.v == subj.finalScore ? positiveColor : negativeColor,
                       fontSize: 24,
                     ),
                     textAlign: TextAlign.center,
@@ -292,8 +298,8 @@ class SubjectPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: backgroundColor,
-        title: Text(subj.name, style: const TextStyle(fontWeight: FontWeight.bold, color: primaryColor),),
+        backgroundColor: CustomTheme.backgroundColor,
+        title: Text(subj.name, style: TextStyle(fontWeight: FontWeight.bold, color: CustomTheme.primaryColor),),
         centerTitle: true,
         leading: IconButton(
           onPressed: () {
@@ -301,9 +307,9 @@ class SubjectPage extends StatelessWidget {
               context,
             );
           },
-          icon: const Icon(
+          icon: Icon(
             Icons.arrow_back,
-            color: primaryColor,
+            color: CustomTheme.primaryColor,
           ),
         ), 
       ),

@@ -9,14 +9,52 @@ import 'package:flutter/material.dart';
 ////////
 
 // Blue version
-const primaryColor = Color(0xFF3AA0C2);
-const selectionColor = Color.fromARGB(255, 58, 160, 194);
-const backgroundColor = Color(0xFF19173D);
-const cardBackgroundColor = Color(0xFF262450);
-const cardBorderColor = Color(0xFF7B78AA);
+// const primaryColor = Color(0xFF3AA0C2);
+// const selectionColor = Color.fromARGB(255, 58, 160, 194);
+// const backgroundColor = Color(0xFF19173D);
+// const cardBackgroundColor = Color(0xFF262450);
+// const cardBorderColor = Color(0xFF7B78AA);
+
+// const secondaryColor = Color(0xFFFFFFFF);
 ////////
 
-const secondaryColor = Color(0xFFFFFFFF);
+// Gray version
+// const primaryColor = Color.fromARGB(255, 231, 238, 246);
+// const selectionColor = Color.fromARGB(255, 206, 226, 233);
+// const backgroundColor = Color(0xff2b2f3a);
+// const cardBackgroundColor = Color(0xFF2e3440);
+// const cardBorderColor = Color(0xFF3b4252);
+
+// const secondaryColor = Color.fromARGB(255, 124, 149, 175);
+////////
+
+class CustomTheme {
+  
+  static Color primaryColor = const Color.fromARGB(255, 231, 238, 246);
+  static Color selectionColor = const Color.fromARGB(255, 206, 226, 233);
+  static Color backgroundColor = const Color(0xff2b2f3a);
+  static Color cardBackgroundColor = const Color(0xFF2e3440);
+  static Color cardBorderColor = const Color(0xFF3b4252);
+
+  static Color secondaryColor = const Color.fromARGB(255, 124, 149, 175);
+
+  static void updateTheme({
+    Color? primaryColor,
+    Color? selectionColor,
+    Color? backgroundColor,
+    Color? cardBackgroundColor,
+    Color? cardBorderColor,
+    Color? secondaryColor,
+  }) {
+    if (primaryColor != null) CustomTheme.primaryColor = primaryColor;
+    if (selectionColor != null) CustomTheme.selectionColor = selectionColor;
+    if (backgroundColor != null) CustomTheme.backgroundColor = backgroundColor;
+    if (cardBackgroundColor != null) CustomTheme.cardBackgroundColor = cardBackgroundColor;
+    if (cardBorderColor != null) CustomTheme.cardBorderColor = cardBorderColor;
+    if (secondaryColor != null) CustomTheme.secondaryColor = secondaryColor;
+  }
+}
+
 const thirdColor = Color.fromARGB(255, 134, 64, 180);
 
 const positiveColor = Color.fromARGB(255, 29, 255, 116);

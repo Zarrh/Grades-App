@@ -39,8 +39,8 @@ class _BarChart extends StatelessWidget {
           ) {
             return BarTooltipItem(
               rod.toY.round().toString(),
-              const TextStyle(
-                color: primaryColor,
+              TextStyle(
+                color: CustomTheme.primaryColor,
                 fontWeight: FontWeight.bold,
               ),
             );
@@ -49,8 +49,8 @@ class _BarChart extends StatelessWidget {
       );
 
   Widget getTitles(double value, TitleMeta meta) {
-    const style = TextStyle(
-      color: primaryColor,
+    final style = TextStyle(
+      color: CustomTheme.primaryColor,
       fontWeight: FontWeight.bold,
       fontSize: 14,
     );
@@ -138,7 +138,7 @@ class _BarChartCardState extends State<BarChartCard> {
         children: [
           Text(
             widget.subject,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: primaryColor),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: CustomTheme.primaryColor),
           ),
           GridView.count(
             shrinkWrap: true,
@@ -148,13 +148,13 @@ class _BarChartCardState extends State<BarChartCard> {
             children: <Widget>[
               Container(
                 alignment: AlignmentDirectional.centerStart,
-                child: Text(widget.subtitle ?? "", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: secondaryColor))
+                child: Text(widget.subtitle ?? "", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: CustomTheme.secondaryColor))
               ),
               Container(
                 alignment: AlignmentDirectional.centerEnd,
                 child: Math.tex(
                   widget.latexAction ?? r"",
-                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: secondaryColor),
+                  textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: CustomTheme.secondaryColor),
                 ),
               ),
             ],

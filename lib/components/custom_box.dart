@@ -15,8 +15,8 @@ class CustomBox extends StatelessWidget {
         borderRadius: const BorderRadius.all(
           Radius.circular(8.0),
         ),
-        color: color ?? cardBackgroundColor,
-        border: Border.all(color: cardBorderColor),
+        color: color ?? CustomTheme.cardBackgroundColor,
+        border: Border.all(color: CustomTheme.cardBorderColor),
       ),
       child: Padding(
         padding: padding ?? const EdgeInsets.all(12.0),

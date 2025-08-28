@@ -100,7 +100,7 @@ double? percToDouble (String perc) {
 // Mean given a list
 double? mean(List<dynamic> nums) {
 
-  if (nums.isEmpty) {
+  if (nums.isEmpty || nums.any((element) => element == null)) {
     return null;
   }
 
@@ -116,7 +116,7 @@ double? mean(List<dynamic> nums) {
 // Weighted mean given two lists
 double? weightedMean(List<dynamic> nums, List<dynamic> weights) {
 
-  if (nums.isEmpty) {
+  if (nums.isEmpty || nums.any((element) => element == null)) {
     return null;
   }
 
@@ -135,7 +135,7 @@ double? weightedMean(List<dynamic> nums, List<dynamic> weights) {
 // Standard deviation of a set of numbers
 double? standardDeviation(List<dynamic> nums) {
 
-  if (nums.isEmpty) {
+  if (nums.isEmpty || nums.any((element) => element == null)) {
     return null;
   }
 
@@ -193,6 +193,10 @@ dynamic getClassesDistribution(List<num> values) {
 
   final num r = rn - r0;
   final num l = r / N; // Width of a single class
+
+  if (l == 0) {
+    return const {};
+  }
 
   for (var i = 0; i < N; i++) {
     distribution[r0 + i*l] = 0;

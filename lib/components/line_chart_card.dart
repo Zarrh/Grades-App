@@ -47,7 +47,7 @@ class _LineChartCardState extends State<LineChartCard> {
         children: [
           Text(
             widget.subject,
-            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: primaryColor),
+            style: TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: CustomTheme.primaryColor),
           ),
           GridView.count(
             shrinkWrap: true,
@@ -57,13 +57,13 @@ class _LineChartCardState extends State<LineChartCard> {
             children: <Widget>[
               Container(
                 alignment: AlignmentDirectional.centerStart,
-                child: Text(widget.subtitle ?? "", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: secondaryColor))
+                child: Text(widget.subtitle ?? "", style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: CustomTheme.secondaryColor))
               ),
               Container(
                 alignment: AlignmentDirectional.centerEnd,
                 child: Math.tex(
                   widget.latexAction ?? r"",
-                  textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: secondaryColor),
+                  textStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: CustomTheme.secondaryColor),
                 ),
               ),
             ],
